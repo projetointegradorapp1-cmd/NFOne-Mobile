@@ -16,7 +16,7 @@ export default function Login({ onLogin }: LoginProps) {
 
     const [request, response, promptAsync] = Google.useAuthRequest({
         // COLAR O SEU ID DO GOOGLE AQUI EMBAIXO:
-        webClientId: '621925164668-k1689pl0604nhr6krj17g6fm1lhtcrb6.apps.googleusercontent.com',
+        webClientId: '642607858601-t8hhdu168o3vkpqbleg9o54fptvu2bci.apps.googleusercontent.com',
     });
 
     useEffect(() => {

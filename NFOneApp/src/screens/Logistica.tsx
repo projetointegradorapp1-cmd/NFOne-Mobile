@@ -13,7 +13,7 @@ export default function Logistica({ isDarkMode }: any) {
     const carregarOS = async () => {
         try {
             const salvos = await AsyncStorage.getItem('@nfone_os');
-            if (salvos) setOrdens(JSON.parse(salvos));
+            if (salvos) setOrdens((Array.isArray(JSON.parse(salvos)) ? JSON.parse(salvos) : []));
         } catch (error) { console.error(error); }
     };
 

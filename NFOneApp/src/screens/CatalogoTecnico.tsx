@@ -10,7 +10,7 @@ export default function CatalogoTecnico({ isDarkMode }: any) {
         try {
             const salvos = await AsyncStorage.getItem('@nfone_equipamentos');
             if (salvos) {
-                setMotores(JSON.parse(salvos));
+                setMotores((Array.isArray(JSON.parse(salvos)) ? JSON.parse(salvos) : []));
             } else {
                 const exemplos = [{ id: '1', tipo: 'Bomba Centrífuga', potencia: '2.0 CV', rpm: '3500', tensao: '220V' }];
                 await AsyncStorage.setItem('@nfone_equipamentos', JSON.stringify(exemplos));

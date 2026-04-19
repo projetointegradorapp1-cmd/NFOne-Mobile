@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Platfo
 import * as Print from 'expo-print';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Asset } from 'expo-asset';
-import * as FileSystem from 'expo-file-system/legacy';
+import * as FileSystem from 'expo-file-system';
 
 export default function Faturamento({ isDarkMode }: any) {
     const [cliente, setCliente] = useState('');
@@ -20,10 +20,19 @@ export default function Faturamento({ isDarkMode }: any) {
     const [logoBase64, setLogoBase64] = useState('');
     const COD_TRIBUTACAO = "14.01.01 - Manutenção de maquinário";
 
+    // Dados Fixos do Prestador (WSE)
+    const PRESTADOR = {
+        razaoSocial: "WSE BOMBAS E MOTORES ELETRICOS LTDA",
+        nomeFantasia: "WSE BOMBAS E MOTORES ELETRICOS",
+        cnpj: "58.054.890/0001-02",
+        localidade: "Brasília - Distrito Federal | Brasil",
+        email: "wsebombas@gmail.com"
+    };
+
     useEffect(() => {
         async function carregarLogo() {
             try {
-                const asset = Asset.fromModule(require('../../assets/wseBombasEMotores.png'));
+                const asset = Asset.fromModule(require('../../assets/LogotipoWSE.png'));
                 await asset.downloadAsync();
                 const uri = asset.localUri || asset.uri;
 
@@ -40,23 +49,16 @@ export default function Faturamento({ isDarkMode }: any) {
                     }
                 }
             } catch (error) {
-                console.log("Aviso: Logo não carregada no código.", error);
+                console.log("Aviso: Logo não carregada.", error);
             }
         }
         carregarLogo();
     }, []);
 
     const limparCampos = () => {
-        setCliente('');
-        setCnpj('');
-        setEndereco('');
-        setDataEntrega('');
-        setEquipamento('');
-        setTag('');
-        setPotencia('');
-        setFormaRecebimento('');
-        setDescricao('');
-        setValor('');
+        setCliente(''); setCnpj(''); setEndereco(''); setDataEntrega('');
+        setEquipamento(''); setTag(''); setPotencia(''); setFormaRecebimento('');
+        setDescricao(''); setValor('');
     };
 
     const gerarPDFWSE = async () => {
@@ -65,20 +67,18 @@ export default function Faturamento({ isDarkMode }: any) {
         <head>
             <style>
                 @page { margin: 0; }
-                body { font-family: Helvetica, Arial, sans-serif; padding: 40px; color: #000; position: relative; }
+                body { font-family: Helvetica, Arial, sans-serif; padding: 40px; color: #000; }
                 .logo-header { position: absolute; top: 30px; left: 30px; width: 80px; height: 80px; object-fit: contain; }
-                .date { text-align: right; font-size: 14px; margin-bottom: 20px; margin-top: 10px; }
+                .date { text-align: right; font-size: 14px; margin-bottom: 20px; }
                 .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; margin-top: 30px; }
-                .header h1 { margin: 0; font-size: 28px; letter-spacing: 2px; color: #000; }
-                .header h3 { margin: 5px 0; font-weight: normal; color: #555; }
-                .section { margin-bottom: 25px; }
-                .section-title { background-color: #f0f0f0; padding: 8px; font-weight: bold; border-left: 4px solid #333; margin-bottom: 10px; }
-                .row { margin-bottom: 6px; font-size: 14px; }
+                .header h1 { margin: 0; font-size: 26px; }
+                .section { margin-bottom: 20px; }
+                .section-title { background-color: #f0f0f0; padding: 8px; font-weight: bold; border-left: 4px solid #333; margin-bottom: 10px; font-size: 12px; }
+                .row { margin-bottom: 4px; font-size: 13px; }
                 .bold { font-weight: bold; }
-                .total-box { margin-top: 30px; padding: 15px; border: 2px solid #000; text-align: right; font-size: 18px; font-weight: bold; }
-                .desc-box { border: 1px solid #ccc; padding: 10px; min-height: 80px; font-size: 14px; white-space: pre-wrap; }
-                .footer { margin-top: 50px; text-align: center; font-size: 12px; color: #555; border-top: 1px solid #ccc; padding-top: 15px; }
-                .direitos { font-size: 10px; color: #888; margin-top: 10px; display: block; }
+                .total-box { margin-top: 20px; padding: 15px; border: 2px solid #000; text-align: right; font-size: 18px; font-weight: bold; }
+                .desc-box { border: 1px solid #ccc; padding: 10px; min-height: 80px; font-size: 13px; white-space: pre-wrap; margin-bottom: 10px; }
+                .footer { margin-top: 40px; text-align: center; font-size: 11px; border-top: 1px solid #ccc; padding-top: 10px; }
             </style>
         </head>
         <body>
@@ -86,30 +86,56 @@ export default function Faturamento({ isDarkMode }: any) {
             <div class="date"><span class="bold">Data de Entrega:</span> ${dataEntrega}</div>
             <div class="header">
                 <h1>WSE Bombas e Motores</h1>
-                <h3>Nota de prestação de serviço</h3>
+                <h3>Nota de Prestação de Serviço</h3>
             </div>
+
+            <div class="section">
+                <div class="section-title">IDENTIFICAÇÃO DO PRESTADOR</div>
+                <div class="row"><span class="bold">Razão Social:</span> ${PRESTADOR.razaoSocial}</div>
+                <div class="row"><span class="bold">Nome Fantasia:</span> ${PRESTADOR.nomeFantasia}</div>
+                <div class="row"><span class="bold">CNPJ:</span> ${PRESTADOR.cnpj}</div>
+                <div class="row"><span class="bold">Localidade:</span> ${PRESTADOR.localidade}</div>
+                <div class="row"><span class="bold">E-mail:</span> ${PRESTADOR.email}</div>
+            </div>
+
             <div class="section">
                 <div class="section-title">DADOS DO TOMADOR (CLIENTE)</div>
                 <div class="row"><span class="bold">Nome/Razão Social:</span> ${cliente}</div>
                 <div class="row"><span class="bold">CNPJ:</span> ${cnpj}</div>
                 <div class="row"><span class="bold">Endereço:</span> ${endereco}</div>
             </div>
+
             <div class="section">
                 <div class="section-title">DETALHES DO TRABALHO</div>
                 <div class="row"><span class="bold">Equipamento:</span> ${equipamento} | <span class="bold">TAG:</span> ${tag}</div>
-                <div class="row"><span class="bold">Potência:</span> ${potencia}</div>
-                <div class="row"><span class="bold">Código de Tributação:</span> ${COD_TRIBUTACAO}</div>
+                <div class="row"><span class="bold">Potência:</span> ${potencia} | <span class="bold">Tributação:</span> ${COD_TRIBUTACAO}</div>
                 <div class="row"><span class="bold">Forma de Recebimento:</span> ${formaRecebimento}</div>
-                <div style="margin-top: 15px;">
-                    <div class="bold" style="margin-bottom: 5px;">Descrição dos Serviços:</div>
+                <div style="margin-top: 10px;">
+                    <div class="bold">Descrição dos Serviços:</div>
                     <div class="desc-box">${descricao}</div>
                 </div>
             </div>
+
+            <div class="section">
+                <div class="section-title">TRIBUTAÇÃO NACIONAL</div>
+                <div class="row"><span class="bold">CST:</span> Nenhum</div>
+                <div class="row"><span class="bold">Tipo de Retenção:</span> PIS/COFINS/CSLL Não Retidos</div>
+                <div class="row">
+                    <span class="bold">Vl. PIS:</span> - | 
+                    <span class="bold">Vl. COFINS:</span> - | 
+                    <span class="bold">Vl. CSLL:</span> -
+                </div>
+                <div class="row">
+                    <span class="bold">Vl. IRRF:</span> - | 
+                    <span class="bold">Vl. CP Retido:</span> -
+                </div>
+            </div>
+
             <div class="total-box">Valor Total: R$ ${valor}</div>
+
             <div class="footer">
                 <span class="bold">WSE BOMBAS E MOTORES ELÉTRICOS</span><br/>
                 CNPJ: 58.054.890/0001-02 | Contato: (61) 99800-7873
-                <span class="direitos">Todos os direitos reservados. WSE</span>
             </div>
         </body>
         </html>
@@ -122,28 +148,25 @@ export default function Faturamento({ isDarkMode }: any) {
             const notasArray = notasSalvas ? JSON.parse(notasSalvas) : [];
             notasArray.unshift(novaNota);
             await AsyncStorage.setItem('@nfone_notas', JSON.stringify(notasArray));
-        } catch (error) { console.error("Erro Cache:", error); }
 
-        if (Platform.OS === 'web') {
-            const printWindow = window.open('', '_blank');
-            if (printWindow) {
-                printWindow.document.write(html);
-                printWindow.document.close();
-                // Aumentei o timeout para garantir que o render do HTML ocorra completamente
-                setTimeout(() => {
-                    printWindow.print();
-                    printWindow.close();
-
-                    // Força a janela principal a recuperar o foco e limpa os campos para a próxima nota
-                    window.focus();
-                    limparCampos();
-                }, 500);
-            }
-        } else {
-            try {
+            if (Platform.OS === 'web') {
+                const printWindow = window.open('', '_blank');
+                if (printWindow) {
+                    printWindow.document.write(html);
+                    printWindow.document.close();
+                    setTimeout(() => {
+                        printWindow.print();
+                        printWindow.close();
+                        window.focus();
+                        limparCampos();
+                    }, 500);
+                }
+            } else {
                 await Print.printAsync({ html });
                 limparCampos();
-            } catch (error) { console.error(error); }
+            }
+        } catch (error) {
+            console.error("Erro ao processar PDF:", error);
         }
     };
 
@@ -154,16 +177,11 @@ export default function Faturamento({ isDarkMode }: any) {
     };
 
     return (
-        <ScrollView
-            style={{ flex: 1, backgroundColor: theme.bgApp }}
-            contentContainerStyle={{ padding: 40, paddingBottom: 100 }}
-            keyboardShouldPersistTaps="handled"
-        >
+        <ScrollView style={{ flex: 1, backgroundColor: theme.bgApp }} contentContainerStyle={{ padding: 40, paddingBottom: 100 }}>
             <Text style={[styles.title, { color: theme.textPrimary }]}>Gerar Nota Fiscal</Text>
 
             <View style={[styles.card, { backgroundColor: theme.bgCard }]}>
                 <Text style={[styles.sectionLabel, { color: theme.btnPrimary }]}>Dados do Cliente</Text>
-
                 <TextInput style={[styles.input, { borderColor: theme.border, color: theme.textPrimary, backgroundColor: theme.bgApp }]}
                     placeholder="Nome/Razão Social" placeholderTextColor={theme.textSecondary} value={cliente} onChangeText={setCliente} />
 
@@ -178,7 +196,6 @@ export default function Faturamento({ isDarkMode }: any) {
                     placeholder="Endereço Completo" placeholderTextColor={theme.textSecondary} value={endereco} onChangeText={setEndereco} />
 
                 <Text style={[styles.sectionLabel, { marginTop: 10, color: theme.btnPrimary }]}>Detalhes Técnicos</Text>
-
                 <View style={{ flexDirection: 'row', gap: 10 }}>
                     <TextInput style={[styles.input, { flex: 1, borderColor: theme.border, color: theme.textPrimary, backgroundColor: theme.bgApp }]}
                         placeholder="Equipamento" placeholderTextColor={theme.textSecondary} value={equipamento} onChangeText={setEquipamento} />
@@ -188,9 +205,9 @@ export default function Faturamento({ isDarkMode }: any) {
 
                 <View style={{ flexDirection: 'row', gap: 10 }}>
                     <TextInput style={[styles.input, { flex: 1, borderColor: theme.border, color: theme.textPrimary, backgroundColor: theme.bgApp }]}
-                        placeholder="Potência" placeholderTextColor={theme.textSecondary} value={potencia} onChangeText={setPotencia} />
+                        placeholder="Potência (CV)" placeholderTextColor={theme.textSecondary} value={potencia} onChangeText={setPotencia} />
                     <TextInput style={[styles.input, { flex: 1, borderColor: theme.border, color: theme.textPrimary, backgroundColor: theme.bgApp }]}
-                        placeholder="Recebimento (Ex: PIX)" placeholderTextColor={theme.textSecondary} value={formaRecebimento} onChangeText={setFormaRecebimento} />
+                        placeholder="Forma de Recebimento" placeholderTextColor={theme.textSecondary} value={formaRecebimento} onChangeText={setFormaRecebimento} />
                 </View>
 
                 <TextInput style={[styles.input, { height: 80, borderColor: theme.border, color: theme.textPrimary, backgroundColor: theme.bgApp }]}

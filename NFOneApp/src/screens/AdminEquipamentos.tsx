@@ -13,7 +13,7 @@ export default function AdminEquipamentos({ isDarkMode }: any) {
         const novoEquipamento = { id: Date.now().toString(), tipo, potencia, rpm: rpm || '-', tensao: tensao || '-' };
         try {
             const salvos = await AsyncStorage.getItem('@nfone_equipamentos');
-            const listaArray = salvos ? JSON.parse(salvos) : [];
+            const listaArray = salvos ? (Array.isArray(JSON.parse(salvos)) ? JSON.parse(salvos) : []) : [];
             listaArray.push(novoEquipamento);
             await AsyncStorage.setItem('@nfone_equipamentos', JSON.stringify(listaArray));
             alert("Equipamento cadastrado!");

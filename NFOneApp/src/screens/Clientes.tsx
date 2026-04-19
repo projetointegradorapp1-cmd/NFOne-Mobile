@@ -24,7 +24,7 @@ export default function Clientes() {
 
     const carregarDados = async () => {
         const salvos = await AsyncStorage.getItem('@nfone_atendimentos');
-        if (salvos) setLista(JSON.parse(salvos));
+        if (salvos) setLista((Array.isArray(JSON.parse(salvos)) ? JSON.parse(salvos) : []));
     };
 
     const salvarCliente = async () => {
